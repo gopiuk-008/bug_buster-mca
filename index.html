@@ -651,9 +651,8 @@
 
                             <div class="console-pane" id="console-pane">
                                 <div class="pane-header"
-                                    style="justify-content: space-between; height: 36px; padding: 0 1rem;">
+                                    style="height: 36px; padding: 0 1rem;">
                                     <span>Console</span>
-                                    <span style="cursor: pointer;" onclick="toggleConsole()">✖</span>
                                 </div>
                                 <div class="console-output" id="console-output">
                                     Click "Run" to see output.
@@ -1093,8 +1092,10 @@ int main() {
 
         async function finishChallenge(isAuto = false, isViolation = false) {
             if (solvedProblemIds.size === 0 && !isAuto && !isViolation) { alert("Solve at least one problem correctly."); return; }
-            if (!isAuto && !isViolation && !confirm(`Finish and submit results for Round ${currentRound}?`)) return;
+            // Removed confirmation dialog to allow for immediate submission.
 
+            // The test is now officially over. Stop timer and violation tracking immediately.
+            examStarted = false;
             const timeDiff = Math.floor((new Date() - startTime) / 1000);
 
             // Prepare summary UI (Intermediate if Round 1)
@@ -1119,7 +1120,6 @@ int main() {
                 btn.onclick = () => window.location.reload();
             }
             if (document.fullscreenElement) document.exitFullscreen();
-            examStarted = false;
         }
 
         async function submitResultToDB(timeSpent) {
