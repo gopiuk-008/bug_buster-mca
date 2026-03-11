@@ -531,7 +531,7 @@
                 <div id="violation-count"
                     style="color: #ff5f56; font-size: 0.8rem; font-weight: 600; background: rgba(255, 95, 86, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px; display: none;">
                     Warnings: 1/2</div>
-                <div class="timer" id="timer-display">30:00</div>
+                <div class="timer" id="timer-display">20:00</div>
             </div>
         </header>
 
@@ -542,7 +542,7 @@
                 <h2 style="color: var(--accent-orange);">Competition Rules</h2>
                 <div class="rules-list">
                     <ul>
-                        <li>This is a time-restricted debugging challenge (30 minutes).</li>
+                        <li>This is a time-restricted debugging challenge (20 minutes).</li>
                         <li><strong>Standard Lock:</strong> Upon agreement, the screen will enter fullscreen mode.</li>
                         <li><strong>Strict Surveillance:</strong> You are restricted from switching tabs or windows.
                         </li>
@@ -687,11 +687,11 @@
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Problems Attempted</div>
-                            <div id="sum-attempted">0/15</div>
+                            <div id="sum-attempted">0/10</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Problems Solved</div>
-                            <div id="sum-solved" style="color: var(--accent-green); font-weight: 700;">0/15</div>
+                            <div id="sum-solved" style="color: var(--accent-green); font-weight: 700;">0/10</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Duration</div>
@@ -715,385 +715,223 @@
     <script>
         const PROBLEMS = [
             {
-                id: 1, round: 1, lang: 'C', title: 'C Pointer Error', diff: 'Medium',
-                desc: 'The pointer `p` is used before it is initialized, leading to undefined behavior. It must point to a valid memory location before being dereferenced.',
-                testCases: [
-                    { input: 'N/A', output: '10' },
-                    { input: '(Conceptual) If x = 50', output: '50' }
-                ],
+                id: 1, round: 1, lang: 'C', title: 'C Incorrect Format Specifier', diff: 'Easy',
+                desc: 'The `printf` function is using an incorrect format specifier. `%s` is for strings, but the `total` variable is an integer. It should be `%d`.',
+                testCases: [{ input: 'N/A', output: 'The total count is 50' }],
                 initialCode: `#include <stdio.h>
 int main() {
-    int x = 10;
-    int *p;
-    *p = x;
-    printf("%d", *p);
+    int total = 50;
+    printf("The total count is %s", total);
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    int x = 10;
-    int *p;
-    p = &x;
-    printf("%d", *p);
-    return 0;
-}`,
-                bugOutput: 'Exception: Segmentation Fault'
-            },
-            {
-                id: 2, round: 1, lang: 'C', title: 'C Function Declaration Missing', diff: 'Easy',
-                desc: 'The function `add` is called before it is declared. In C, a function must be declared or defined before its first use.',
-                testCases: [
-                    { input: 'add(5, 4)', output: '9' },
-                    { input: 'add(10, -2)', output: '8' }
-                ],
-                initialCode: `#include <stdio.h>
-int main() {
-    int result = add(5, 4);
-    printf("%d", result);
-    return 0;
-}
-int add(int a, int b) {
-    return a + b;
-}`,
-                solutionCode: `#include <stdio.h>
-int add(int a, int b);
-int main() {
-    int result = add(5, 4);
-    printf("%d", result);
-    return 0;
-}
-int add(int a, int b) {
-    return a + b;
-}`,
-                bugOutput: "Compiler Error: Implicit declaration of function 'add'"
-            },
-            {
-                id: 3, round: 1, lang: 'C', title: 'C Incorrect Loop Condition', diff: 'Easy',
-                desc: 'An extra semicolon after the `for` loop condition creates an empty loop body. The `printf` statement is executed only once after the loop finishes.',
-                testCases: [
-                    { input: 'Loop from 0 to 5', output: '0 1 2 3 4 5' },
-                    { input: 'Loop from 0 to 3', output: '0 1 2 3' }
-                ],
-                initialCode: `#include <stdio.h>
-int main() {
-    int i;
-    for (i = 0; i <= 5; i++);
-    {
-        printf("%d", i);
-    }
-    return 0;
-}`,
-                solutionCode: `#include <stdio.h>
-int main() {
-    int i;
-    for (i = 0; i <= 5; i++) {
-        printf("%d ", i);
-    }
-    return 0;
-}`,
-                bugOutput: 'Console: 6'
-            },
-            {
-                id: 4, round: 1, lang: 'C', title: 'C Wrong scanf Usage', diff: 'Easy',
-                desc: 'The `scanf` function requires a pointer to the variable where the input will be stored. The address-of operator `&` is missing.',
-                testCases: [
-                    { input: '123', output: '123' },
-                    { input: '99', output: '99' }
-                ],
-                initialCode: `#include <stdio.h>
-int main() {
-    int a;
-    scanf("%d", a);
-    printf("%d", a);
-    return 0;
-}`,
-                solutionCode: `#include <stdio.h>
-int main() {
-    int a;
-    scanf("%d", &a);
-    printf("%d", a);
+    int total = 50;
+    printf("The total count is %d", total);
     return 0;
 }`,
                 bugOutput: 'Exception: Segmentation Fault or Garbage Value'
             },
             {
-                id: 5, round: 1, lang: 'C', title: 'C Array and Loop Error', diff: 'Medium',
-                desc: 'The loop condition `i<=5` causes an out-of-bounds access for an array of size 5 (indices 0-4). This leads to undefined behavior.',
-                testCases: [
-                    { input: 'Array size 5, loop 0 to 4', output: 'Last element: 4' },
-                    { input: 'Array size 3, loop 0 to 2', output: 'Last element: 2' }
-                ],
+                id: 2, round: 1, lang: 'C', title: 'C Assignment vs. Comparison', diff: 'Easy',
+                desc: 'A single equals sign `=` is the assignment operator. For comparison, the double equals sign `==` must be used. The expression `(score = 100)` assigns 100 to `score` and evaluates to 100, which is considered true.',
+                testCases: [{ input: 'score = 0', output: 'Keep trying!' }],
                 initialCode: `#include <stdio.h>
 int main() {
-    int arr[5];
-    int i;
-    for (i = 0; i <= 5; i++) {
-        arr[i] = i;
+    int score == 0;
+    if (score = 100) {
+        printf("Perfect Score!");
+    } else {
+        printf("Keep trying!");
     }
-    printf("%d", arr[5]);
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    int arr[5];
-    int i;
-    for (i = 0; i < 5; i++) {
-        arr[i] = i;
+    int score = 0;
+    if (score == 100) {
+        printf("Perfect Score!");
+    } else {
+        printf("Keep trying!");
     }
-    printf("%d", arr[4]);
     return 0;
 }`,
-                bugOutput: 'Console: (Garbage Value or Crash)'
+                bugOutput: 'Console: Perfect Score!'
             },
             {
-                id: 6, round: 1, lang: 'C', title: 'C Assignment Instead of Comparison', diff: 'Easy',
-                desc: 'A single equals sign `=` is used for assignment, not comparison. For checking equality, the `==` operator must be used.',
-                testCases: [
-                    { input: 'a = 5', output: '(No output)' },
-                    { input: 'a = 10', output: 'Equal' }
-                ],
-                initialCode: `#include <stdio.h>
-int main() {
-    int a = 5;
-    if (a = 10)
-        printf("Equal");
-    return 0;
-}`,
-                solutionCode: `#include <stdio.h>
-int main() {
-    int a = 5;
-    if (a == 10)
-        printf("Equal");
-    return 0;
-}`,
-                bugOutput: 'Console: Equal'
-            },
-            {
-                id: 7, round: 1, lang: 'C', title: 'C Missing Header', diff: 'Easy',
-                desc: 'The `printf` function is part of the standard I/O library. The header file `<stdio.h>` must be included to use it.',
-                testCases: [
-                    { input: 'N/A', output: 'Hello' },
-                    { input: '(Conceptual) If printf("World")', output: 'World' }
-                ],
+                id: 3, round: 1, lang: 'C', title: 'C Missing Header File', diff: 'Easy',
+                desc: 'The `printf` function is declared in the standard input/output header file `<stdio.h>`. This header must be included to use the function without a compiler warning or error.',
+                testCases: [{ input: 'N/A', output: 'Welcome to the Symposium' }],
                 initialCode: `int main() {
-    printf("Hello");
+    print("Welcome to the Symposium");
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    printf("Hello");
+    printf("Welcome to the Symposium");
     return 0;
 }`,
                 bugOutput: "Compiler Warning/Error: Implicit declaration of function 'printf'"
             },
             {
-                id: 8, round: 1, lang: 'C', title: 'C Incorrect Array Initialization', diff: 'Easy',
-                desc: 'The array is initialized with more elements than its declared size, which is a compilation error.',
-                testCases: [
-                    { input: 'arr[5] = {1,2,3,4,5}', output: '1' },
-                    { input: 'arr[3] = {10,20,30}', output: '10' }
-                ],
-                initialCode: `#include <stdio.h>
-int main() {
-    int arr[5] = {1, 2, 3, 4, 5, 6};
-    printf("%d", arr[0]);
-    return 0;
-}`,
-                solutionCode: `#include <stdio.h>
-int main() {
-    int arr[6] = {1, 2, 3, 4, 5, 6};
-    printf("%d", arr[0]);
-    return 0;
-}`,
-                bugOutput: 'Compiler Error: too many initializers'
-            },
-            {
-                id: 9, round: 1, lang: 'C', title: 'C Switch Case Missing Break', diff: 'Easy',
-                desc: "The `switch` statement is missing `break` keywords, causing execution to 'fall through' to subsequent cases after a match is found.",
-                testCases: [
-                    { input: 'num = 2', output: 'Two' },
-                    { input: 'num = 1', output: 'One' }
-                ],
-                initialCode: `#include <stdio.h>
-int main() {
-    int num = 2;
-    switch (num) {
-        case 1:
-            printf("One");
-        case 2:
-            printf("Two");
-        case 3:
-            printf("Three");
-    }
-    return 0;
-}`,
-                solutionCode: `#include <stdio.h>
-int main() {
-    int num = 2;
-    switch (num) {
-        case 1:
-            printf("One");
-            break;
-        case 2:
-            printf("Two");
-            break;
-        case 3:
-            printf("Three");
-            break;
-    }
-    return 0;
-}`,
-                bugOutput: 'Console: TwoThree'
-            },
-            {
-                id: 10, round: 1, lang: 'C', title: 'C Incorrect Loop Logic', diff: 'Medium',
-                desc: 'The loop is intended to count down but uses an increment operator (`i++`), creating an infinite loop.',
-                testCases: [
-                    { input: 'Loop from 5 down to 0', output: '5 4 3 2 1 0' },
-                    { input: 'Loop from 3 down to 1', output: '3 2 1' }
-                ],
+                id: 4, round: 1, lang: 'C', title: 'C Uninitialized Variable in Loop', diff: 'Easy',
+                desc: 'The loop counter variable `i` is used in the condition `i < 5` before it has been given a value. It must be initialized (e.g., `int i = 0;`) to ensure predictable behavior.',
+                testCases: [{ input: 'N/A', output: '0 1 2 3 4 ' }],
                 initialCode: `#include <stdio.h>
 int main() {
     int i;
-    for (i = 5; i >= 0; i++) {
+    whlie (i < 5) {
         printf("%d ", i);
+        i++;
     }
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    int i;
-    for (i = 5; i >= 0; i--) {
+    int i = 0;
+    while (i < 5) {
         printf("%d ", i);
+        i++;
     }
     return 0;
 }`,
-                bugOutput: 'Console: 5 6 7 8 ... (Infinite Loop / Timed Out)'
+                bugOutput: 'Console: (Garbage values or unpredictable loop behavior)'
             },
             {
-                id: 11, round: 1, lang: 'C', title: 'C Double Declaration', diff: 'Easy',
-                desc: 'The variable `a` is declared more than once within the same scope, which is not allowed in C.',
-                testCases: [
-                    { input: 'N/A', output: '20' },
-                    { input: '(Conceptual) If second assignment is a = 50', output: '50' }
-                ],
+                id: 5, round: 1, lang: 'C', title: 'C Character vs. String Literal', diff: 'Easy',
+                desc: 'In C, single quotes `\'A\'` are used for character literals, while double quotes `"A"` are for string literals (which are pointers to characters). A `char` variable can only hold a single character.',
+                testCases: [{ input: 'N/A', output: 'Grade: A' }],
                 initialCode: `#include <stdio.h>
 int main() {
-    int a = 10;
-    int a = 20;
-    printf("%d", a);
+    char grade;
+    grade = "A";
+    printf("Grade: %c", grade);
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    int a = 10;
-    a = 20;
-    printf("%d", a);
+    char grade;
+    grade = 'A';
+    printf("Grade: %c", grade);
     return 0;
 }`,
-                bugOutput: "Compiler Error: Redeclaration of 'a'"
+                bugOutput: "Compiler Error: invalid conversion from 'const char*' to 'char'"
             },
             {
-                id: 12, round: 1, lang: 'C', title: 'C Incorrect Logical Operator', diff: 'Easy',
-                desc: "The bitwise AND operator `&` is used instead of the logical AND operator `&&`. While it may work in this case, it's logically incorrect and can lead to bugs.",
-                testCases: [
-                    { input: 'a = 5', output: 'Valid' },
-                    { input: 'a = 12', output: '(No output)' }
-                ],
+                id: 6, round: 1, lang: 'C', title: 'C Integer Division', diff: 'Moderate',
+                desc: 'When dividing two integers, C performs integer division, truncating any fractional part. To get a floating-point result, one of the integers must be cast to a `float` or `double` before the division.',
+                testCases: [{ input: 'a=7, b=2', output: 'Average is: 3.5' }],
                 initialCode: `#include <stdio.h>
 int main() {
-    int a = 5;
-    if (a > 0 & a < 10)
-        printf("Valid");
+    int a = 7, b = 2;
+    float avg = a / b;
+    printf("Average is: %.1f", avg);
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    int a = 5;
-    if (a > 0 && a < 10)
-        printf("Valid");
+    int a = 7, b = 2;
+    float avg = (float)a / b;
+    printf("Average is: %.1f", avg);
     return 0;
 }`,
-                bugOutput: 'Console: Valid'
+                bugOutput: 'Console: Average is: 3.0'
             },
             {
-                id: 13, round: 1, lang: 'C', title: 'C Missing Braces in Loop', diff: 'Medium',
-                desc: 'Without curly braces `{}`, a `for` loop only executes the single statement immediately following it. The indentation is misleading, and `printf("Done")` only runs once after the loop.',
-                testCases: [
-                    { input: 'Loop from 1 to 3', output: '1 Done 2 Done 3 Done ' },
-                    { input: 'Loop from 1 to 2', output: '1 Done 2 Done ' }
-                ],
+                id: 7, round: 1, lang: 'C', title: 'C Post-increment vs Pre-increment', diff: 'Moderate',
+                desc: 'The post-increment operator `x++` uses the value of `x` and then increments it. The pre-increment operator `++x` increments the value first and then uses the new value. The original code checks `5 == 6`, which is false.',
+                testCases: [{ input: 'x=5', output: 'Condition Met' }],
                 initialCode: `#include <stdio.h>
 int main() {
-    int i;
-    for (i = 1; i <= 3; i++)
-        printf("%d ", i);
-    printf("Done");
-    return 0;
-}`,
-                solutionCode: `#include <stdio.h>
-int main() {
-    int i;
-    for (i = 1; i <= 3; i++) {
-        printf("%d ", i);
-        printf("Done ");
+    int x = 5;
+    if (x++ == 6) {
+        printf("Condition Met");
+    } else {
+        printf("Value is %d", x);
     }
     return 0;
 }`,
-                bugOutput: 'Console: 1 2 3 Done'
+                solutionCode: `#include <stdio.h>
+int main() {
+    int x = 5;
+    if (++x == 6) {
+        printf("Condition Met");
+    } else {
+        printf("Value is %d", x);
+    }
+    return 0;
+}`,
+                bugOutput: 'Console: Value is 6'
             },
             {
-                id: 14, round: 1, lang: 'C', title: 'C Multiple Logic and Syntax Errors', diff: 'Easy',
-                desc: 'A semicolon after the `for` loop statement creates an empty loop. The block below it is executed only once, after the loop has finished.',
-                testCases: [
-                    { input: 'Sum from 1 to 10', output: 'Sum = 55' },
-                    { input: 'Sum from 1 to 5', output: 'Sum = 15' }
-                ],
-                initialCode: `#include <stdio.h>
+                id: 8, round: 1, lang: 'C', title: 'C Errant Semicolon in Loop', diff: 'Moderate',
+                desc: 'A semicolon after the `for` loop\'s parenthesis terminates the loop statement. The loop runs with an empty body 10 times. The block with `count++` is executed only once afterward.',
+                testCases: [{ input: 'N/A', output: '10' }],
+                initialCode: `#include <stbio.h>
 int main() {
-    int i;
-    int sum = 0;
-    for (i = 1; i <= 10; i++);
+    int count = 0;
+    for (int i = 0; i < 10; i-+);
     {
-        sum = sum + i;
+        count++;
     }
-    printf("Sum = %d", sum);
+    printf("%d", count);
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    int i;
-    int sum = 0;
-    for (i = 1; i <= 10; i++) {
-        sum = sum + i;
+    int count = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        count++;
     }
-    printf("Sum = %d", sum);
+    printf("%d", count);
     return 0;
 }`,
-                bugOutput: 'Console: Sum = 11'
+                bugOutput: 'Console: 1'
             },
             {
-                id: 15, round: 1, lang: 'C', title: 'C Incorrect scanf for Float', diff: 'Easy',
-                desc: 'The format specifier in `scanf` does not match the data type of the variable. `%d` is for integers, but `num` is a `float`.',
-                testCases: [
-                    { input: '3.14', output: '3.140000' },
-                    { input: '12.5', output: '12.500000' }
-                ],
+                id: 9, round: 1, lang: 'C', title: 'C Array Out-of-Bounds', diff: 'Moderate',
+                desc: 'An array of size 2 has indices 0 and 1. Accessing `arr[2]` writes to and reads from memory outside the array\'s bounds, which is undefined behavior and can lead to crashes or unexpected results. The array size must be increased to accommodate index 2.',
+                testCases: [{ input: 'N/A', output: '30' }],
                 initialCode: `#include <stdio.h>
 int main() {
-    float num;
-    scanf("%d", &num);
-    printf("%f", num);
+    int arr[2] = {10, 20};
+    arr[2] = 30;
+    printf("%d", arr[2]);
     return 0;
 }`,
                 solutionCode: `#include <stdio.h>
 int main() {
-    float num;
-    scanf("%f", &num);
-    printf("%f", num);
+    int arr[3] = {10, 20};
+    arr[2] = 30;
+    printf("%d", arr[2]);
     return 0;
 }`,
-                bugOutput: 'Console: (Garbage Value, e.g., 0.000000)'
+                bugOutput: 'Exception: Segmentation Fault or Garbage Value'
+            },
+            {
+                id: 10, round: 1, lang: 'C', title: 'C Logical Operator Short-Circuiting', diff: 'Moderate',
+                desc: 'The logical AND `&&` operator does not evaluate its right-hand side if the left-hand side is false. To ensure the assignment to `q` happens regardless, a bitwise AND `&` can be used, as it does not short-circuit.',
+                testCases: [{ input: 'p=0, q=10', output: 'q = 20' }],
+                initialCode: `#include <stbio.h>
+int main() {
+    int p = 0, q = 10;
+    if (p && (q = 20)) {
+        printf("Success ");
+    }
+    printf("q = %d", q);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int p = 0, q = 10;
+    if (p & (q = 20)) {
+        printf("Success ");
+    }
+    printf("q = %d", q);
+    return 0;
+}`,
+                bugOutput: 'Console: q = 10'
             }
         ];
 
@@ -1103,7 +941,7 @@ int main() {
         let student = { name: '', roll: '', dept: '', code: '', lang: '' };
         let currentRound = 1;
         let examStarted = false;
-        let startTime, timeLeft = 1800;
+        let startTime, timeLeft = 1200;
         let violations = 0;
         let solvedProblemIds = new Set();
         let attemptedProblemIds = new Set();
@@ -1369,7 +1207,7 @@ int main() {
                     if (data.length === 0) { content.innerHTML = '<p>No results yet.</p>'; return; }
                     let html = `<table class="leaderboard-table"><thead><tr><th>Rank</th><th>Name</th><th>R</th><th>Solved</th><th>Time</th></tr></thead><tbody>`;
                     data.forEach((r, i) => {
-                        html += `<tr><td>#${i + 1}</td><td>${r.name}<br><small>${r.roll_number}</small></td><td>R${r.round || 1}</td><td>${r.solved_count}/15</td><td>${Math.floor(r.time_spent_seconds / 60)}m</td></tr>`;
+                        html += `<tr><td>#${i + 1}</td><td>${r.name}<br><small>${r.roll_number}</small></td><td>R${r.round || 1}</td><td>${r.solved_count}/10</td><td>${Math.floor(r.time_spent_seconds / 60)}m</td></tr>`;
                     });
                     content.innerHTML = html + '</tbody></table>';
                 }
