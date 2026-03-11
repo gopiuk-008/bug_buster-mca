@@ -687,11 +687,11 @@
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Problems Attempted</div>
-                            <div id="sum-attempted">0/10</div>
+                            <div id="sum-attempted">0/15</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Problems Solved</div>
-                            <div id="sum-solved" style="color: var(--accent-green); font-weight: 700;">0/10</div>
+                            <div id="sum-solved" style="color: var(--accent-green); font-weight: 700;">0/15</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Duration</div>
@@ -714,88 +714,342 @@
 
     <script>
         const PROBLEMS = [
-            // ROUND 1: C PROGRAMMING (HARD)
             {
-                id: 1, round: 1, lang: 'C', title: 'C Pointer arithmetic', diff: 'Hard',
-                desc: 'The pointer arithmetic in this function is incorrect, causing it to access memory outside the array bounds.',
-                example: 'Input: [10, 20, 30], get index 2. Expected: 30',
-                initialCode: '#include <stdio.h>\nint main() {\n    int arr[] = {10, 20, 30};\n    int *ptr = arr;\n    // Accessing index 2\n    printf("%d", *(ptr + 4)); // Bug: incorrect offset\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\nint main() {\n    int arr[] = {10, 20, 30};\n    int *ptr = arr;\n    // Accessing index 2\n    printf("%d", *(ptr + 2));\n    return 0;\n}',
-                bugOutput: 'Console: (Garbage Value or Crash)'
-            },
-            {
-                id: 2, round: 1, lang: 'C', title: 'C Memory leak', diff: 'Hard',
-                desc: 'This function has a memory leak and potential crash due to improper allocation size for a string.',
-                example: 'Input: "Hello", Expected: Space allocated for 5 chars + null',
-                initialCode: '#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint main() {\n    char *s = malloc(5); // Bug: not enough for null terminator\n    strcpy(s, "Hello");\n    printf("%s", s);\n    // Missing free(s);\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint main() {\n    char *s = malloc(6);\n    strcpy(s, "Hello");\n    printf("%s", s);\n    free(s);\n    return 0;\n}',
-                bugOutput: 'Console: Hello (but memory issues exist)'
-            },
-            {
-                id: 3, round: 1, lang: 'C', title: 'C Double Free', diff: 'Hard',
-                desc: 'A double free error occurs in this cleanup logic. Identify and fix it.',
-                example: 'Expected: No crash',
-                initialCode: '#include <stdio.h>\n#include <stdlib.h>\nint main() {\n    int *p = malloc(sizeof(int));\n    *p = 10;\n    free(p);\n    if(p != NULL) {\n        free(p); // Bug: Double free\n    }\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\n#include <stdlib.h>\nint main() {\n    int *p = malloc(sizeof(int));\n    *p = 10;\n    free(p);\n    return 0;\n}',
-                bugOutput: 'Exception: Abort / Segmentation Fault'
-            },
-            {
-                id: 4, round: 1, lang: 'C', title: 'C File Pointer', diff: 'Hard',
-                desc: 'The file handling logic is unsafe and missing null checks for the file pointer.',
-                example: 'Expected: Safe file reading',
-                initialCode: '#include <stdio.h>\nint main() {\n    FILE *f = fopen("nonexistent.txt", "r");\n    char buf[100];\n    fgets(buf, 100, f); // Bug: f might be NULL\n    printf("%s", buf);\n    fclose(f);\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\nint main() {\n    FILE *f = fopen("nonexistent.txt", "r");\n    if (f != NULL) {\n        char buf[100];\n        fgets(buf, 100, f);\n        printf("%s", buf);\n        fclose(f);\n    }\n    return 0;\n}',
+                id: 1, round: 1, lang: 'C', title: 'C Pointer Error', diff: 'Medium',
+                desc: 'The pointer `p` is used before it is initialized, leading to undefined behavior. It must point to a valid memory location before being dereferenced.',
+                example: 'Expected: 10',
+                initialCode: `#include <stdio.h>
+int main() {
+    int x = 10;
+    int *p;
+    *p = x;
+    printf("%d", *p);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int x = 10;
+    int *p;
+    p = &x;
+    printf("%d", *p);
+    return 0;
+}`,
                 bugOutput: 'Exception: Segmentation Fault'
             },
             {
-                id: 5, round: 1, lang: 'C', title: 'C Buffer Overflow', diff: 'Hard',
-                desc: 'The use of gets() is dangerous. Fix the buffer overflow vulnerability.',
-                example: 'Expected: Secure input handling',
-                initialCode: '#include <stdio.h>\nint main() {\n    char name[10];\n    printf("Enter name: ");\n    gets(name); // Bug: Dangerous function\n    printf("Hello %s", name);\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\nint main() {\n    char name[10];\n    printf("Enter name: ");\n    fgets(name, 10, stdin);\n    printf("Hello %s", name);\n    return 0;\n}',
-                bugOutput: 'Console: (Potential Security Risk/Crash)'
+                id: 2, round: 1, lang: 'C', title: 'C Function Declaration Missing', diff: 'Easy',
+                desc: 'The function `add` is called before it is declared. In C, a function must be declared or defined before its first use.',
+                example: 'Expected: 9',
+                initialCode: `#include <stdio.h>
+int main() {
+    int result = add(5, 4);
+    printf("%d", result);
+    return 0;
+}
+int add(int a, int b) {
+    return a + b;
+}`,
+                solutionCode: `#include <stdio.h>
+int add(int a, int b);
+int main() {
+    int result = add(5, 4);
+    printf("%d", result);
+    return 0;
+}
+int add(int a, int b) {
+    return a + b;
+}`,
+                bugOutput: "Compiler Error: Implicit declaration of function 'add'"
             },
             {
-                id: 6, round: 1, lang: 'C', title: 'C Dangling Pointer', diff: 'Hard',
-                desc: 'The function returns a pointer to a local variable which becomes dangling.',
-                example: 'Expected: Valid pointer or value returned',
-                initialCode: '#include <stdio.h>\nint* getVal() {\n    int x = 100;\n    return &x; // Bug: local address returned\n}\nint main() {\n    int *p = getVal();\n    printf("%d", *p);\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\nint getVal() {\n    int x = 100;\n    return x;\n}\nint main() {\n    int p = getVal();\n    printf("%d", p);\n    return 0;\n}',
-                bugOutput: 'Console: (Garbage/Crash)'
+                id: 3, round: 1, lang: 'C', title: 'C Incorrect Loop Condition', diff: 'Easy',
+                desc: 'An extra semicolon after the `for` loop condition creates an empty loop body. The `printf` statement is executed only once after the loop finishes.',
+                example: 'Expected: 0 1 2 3 4 5',
+                initialCode: `#include <stdio.h>
+int main() {
+    int i;
+    for (i = 0; i <= 5; i++);
+    {
+        printf("%d", i);
+    }
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int i;
+    for (i = 0; i <= 5; i++) {
+        printf("%d ", i);
+    }
+    return 0;
+}`,
+                bugOutput: 'Console: 6'
             },
             {
-                id: 7, round: 1, lang: 'C', title: 'C Struct Padding', diff: 'Hard',
-                desc: 'Calculated size of struct is incorrect because of padding assumptions. Use the right way to get size.',
-                example: 'Expected: Actual struct size',
-                initialCode: '#include <stdio.h>\nstruct Data { char c; int i; };\nint main() {\n    // Assuming char(1) + int(4) = 5\n    int expected = 5;\n    if(sizeof(struct Data) == expected) printf("Match");\n    else printf("Mismatch: %zu", sizeof(struct Data));\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\nstruct Data { char c; int i; };\nint main() {\n    // The actual size is usually 8 due to padding\n    int expected = 8;\n    if(sizeof(struct Data) == expected) printf("Match");\n    else printf("Mismatch: %zu", sizeof(struct Data));\n    return 0;\n}',
-                bugOutput: 'Console: Mismatch: 8'
+                id: 4, round: 1, lang: 'C', title: 'C Wrong scanf Usage', diff: 'Easy',
+                desc: 'The `scanf` function requires a pointer to the variable where the input will be stored. The address-of operator `&` is missing.',
+                example: 'Input: 123, Expected: 123',
+                initialCode: `#include <stdio.h>
+int main() {
+    int a;
+    scanf("%d", a);
+    printf("%d", a);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int a;
+    scanf("%d", &a);
+    printf("%d", a);
+    return 0;
+}`,
+                bugOutput: 'Exception: Segmentation Fault or Garbage Value'
             },
             {
-                id: 8, round: 1, lang: 'C', title: 'C String Compare', diff: 'Hard',
-                desc: 'Comparing strings using == is a common mistake in C. Use the correct function.',
-                example: 'Input: "test", "test", Expected: Match',
-                initialCode: '#include <stdio.h>\nint main() {\n    char s1[] = "test";\n    char s2[] = "test";\n    if(s1 == s2) printf("Match"); // Bug: comparing addresses\n    else printf("Mismatch");\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\n#include <string.h>\nint main() {\n    char s1[] = "test";\n    char s2[] = "test";\n    if(strcmp(s1, s2) == 0) printf("Match");\n    else printf("Mismatch");\n    return 0;\n}',
-                bugOutput: 'Console: Mismatch'
+                id: 5, round: 1, lang: 'C', title: 'C Array and Loop Error', diff: 'Medium',
+                desc: 'The loop condition `i<=5` causes an out-of-bounds access for an array of size 5 (indices 0-4). This leads to undefined behavior.',
+                example: 'Expected: Loop runs 0-4, prints a valid element like 4.',
+                initialCode: `#include <stdio.h>
+int main() {
+    int arr[5];
+    int i;
+    for (i = 0; i <= 5; i++) {
+        arr[i] = i;
+    }
+    printf("%d", arr[5]);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int arr[5];
+    int i;
+    for (i = 0; i < 5; i++) {
+        arr[i] = i;
+    }
+    printf("%d", arr[4]);
+    return 0;
+}`,
+                bugOutput: 'Console: (Garbage Value or Crash)'
             },
             {
-                id: 9, round: 1, lang: 'C', title: 'C Array Size', diff: 'Hard',
-                desc: 'Passing an array to a function and trying to find its size inside doesn\'t work. Fix it.',
-                example: 'Expected size: 5',
-                initialCode: '#include <stdio.h>\nvoid printSize(int arr[]) {\n    printf("%zu", sizeof(arr) / sizeof(arr[0])); // Bug\n}\nint main() {\n    int a[] = {1, 2, 3, 4, 5};\n    printSize(a);\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\nvoid printSize(int arr[], size_t size) {\n    printf("%zu", size);\n}\nint main() {\n    int a[] = {1, 2, 3, 4, 5};\n    printSize(a, sizeof(a) / sizeof(a[0]));\n    return 0;\n}',
-                bugOutput: 'Console: 2 (on 64-bit)'
+                id: 6, round: 1, lang: 'C', title: 'C Assignment Instead of Comparison', diff: 'Easy',
+                desc: 'A single equals sign `=` is used for assignment, not comparison. For checking equality, the `==` operator must be used.',
+                example: 'Expected: (No output)',
+                initialCode: `#include <stdio.h>
+int main() {
+    int a = 5;
+    if (a = 10)
+        printf("Equal");
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int a = 5;
+    if (a == 10)
+        printf("Equal");
+    return 0;
+}`,
+                bugOutput: 'Console: Equal'
             },
             {
-                id: 10, round: 1, lang: 'C', title: 'C Linked List Loop', diff: 'Hard',
-                desc: 'The linked list traversal goes into an infinite loop due to a broken pointer assignment.',
-                example: 'Expected: Print 1 to 3',
-                initialCode: '#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int v; struct Node *next; };\nint main() {\n    struct Node *h = malloc(sizeof(struct Node));\n    h->v = 1; h->next = h; // Bug: Cycle created\n    printf("%d", h->v);\n    return 0;\n}',
-                solutionCode: '#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int v; struct Node *next; };\nint main() {\n    struct Node *h = malloc(sizeof(struct Node));\n    h->v = 1; h->next = NULL;\n    printf("%d", h->v);\n    return 0;\n}',
-                bugOutput: 'Console: (Timed Out)'
+                id: 7, round: 1, lang: 'C', title: 'C Missing Header', diff: 'Easy',
+                desc: 'The `printf` function is part of the standard I/O library. The header file `<stdio.h>` must be included to use it.',
+                example: 'Expected: Hello',
+                initialCode: `int main() {
+    printf("Hello");
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    printf("Hello");
+    return 0;
+}`,
+                bugOutput: "Compiler Warning/Error: Implicit declaration of function 'printf'"
             },
-
+            {
+                id: 8, round: 1, lang: 'C', title: 'C Incorrect Array Initialization', diff: 'Easy',
+                desc: 'The array is initialized with more elements than its declared size, which is a compilation error.',
+                example: 'Expected: 1',
+                initialCode: `#include <stdio.h>
+int main() {
+    int arr[5] = {1, 2, 3, 4, 5, 6};
+    printf("%d", arr[0]);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int arr[6] = {1, 2, 3, 4, 5, 6};
+    printf("%d", arr[0]);
+    return 0;
+}`,
+                bugOutput: 'Compiler Error: too many initializers'
+            },
+            {
+                id: 9, round: 1, lang: 'C', title: 'C Switch Case Missing Break', diff: 'Easy',
+                desc: "The `switch` statement is missing `break` keywords, causing execution to 'fall through' to subsequent cases after a match is found.",
+                example: 'Expected: Two',
+                initialCode: `#include <stdio.h>
+int main() {
+    int num = 2;
+    switch (num) {
+        case 1:
+            printf("One");
+        case 2:
+            printf("Two");
+        case 3:
+            printf("Three");
+    }
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int num = 2;
+    switch (num) {
+        case 1:
+            printf("One");
+            break;
+        case 2:
+            printf("Two");
+            break;
+        case 3:
+            printf("Three");
+            break;
+    }
+    return 0;
+}`,
+                bugOutput: 'Console: TwoThree'
+            },
+            {
+                id: 10, round: 1, lang: 'C', title: 'C Incorrect Loop Logic', diff: 'Medium',
+                desc: 'The loop is intended to count down but uses an increment operator (`i++`), creating an infinite loop.',
+                example: 'Expected: 5 4 3 2 1 0',
+                initialCode: `#include <stdio.h>
+int main() {
+    int i;
+    for (i = 5; i >= 0; i++) {
+        printf("%d ", i);
+    }
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int i;
+    for (i = 5; i >= 0; i--) {
+        printf("%d ", i);
+    }
+    return 0;
+}`,
+                bugOutput: 'Console: 5 6 7 8 ... (Infinite Loop / Timed Out)'
+            },
+            {
+                id: 11, round: 1, lang: 'C', title: 'C Double Declaration', diff: 'Easy',
+                desc: 'The variable `a` is declared more than once within the same scope, which is not allowed in C.',
+                example: 'Expected: 20',
+                initialCode: `#include <stdio.h>
+int main() {
+    int a = 10;
+    int a = 20;
+    printf("%d", a);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int a = 10;
+    a = 20;
+    printf("%d", a);
+    return 0;
+}`,
+                bugOutput: "Compiler Error: Redeclaration of 'a'"
+            },
+            {
+                id: 12, round: 1, lang: 'C', title: 'C Incorrect Logical Operator', diff: 'Easy',
+                desc: "The bitwise AND operator `&` is used instead of the logical AND operator `&&`. While it may work in this case, it's logically incorrect and can lead to bugs.",
+                example: 'Expected: Valid',
+                initialCode: `#include <stdio.h>
+int main() {
+    int a = 5;
+    if (a > 0 & a < 10)
+        printf("Valid");
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int a = 5;
+    if (a > 0 && a < 10)
+        printf("Valid");
+    return 0;
+}`,
+                bugOutput: 'Console: Valid'
+            },
+            {
+                id: 13, round: 1, lang: 'C', title: 'C Missing Braces in Loop', diff: 'Medium',
+                desc: 'Without curly braces `{}`, a `for` loop only executes the single statement immediately following it. The indentation is misleading, and `printf("Done")` only runs once after the loop.',
+                example: 'Expected: 1 Done 2 Done 3 Done ',
+                initialCode: `#include <stdio.h>
+int main() {
+    int i;
+    for (i = 1; i <= 3; i++)
+        printf("%d ", i);
+    printf("Done");
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int i;
+    for (i = 1; i <= 3; i++) {
+        printf("%d ", i);
+        printf("Done ");
+    }
+    return 0;
+}`,
+                bugOutput: 'Console: 1 2 3 Done'
+            },
+            {
+                id: 14, round: 1, lang: 'C', title: 'C Multiple Logic and Syntax Errors', diff: 'Easy',
+                desc: 'A semicolon after the `for` loop statement creates an empty loop. The block below it is executed only once, after the loop has finished.',
+                example: 'Expected: Sum = 55',
+                initialCode: `#include <stdio.h>
+int main() {
+    int i;
+    int sum = 0;
+    for (i = 1; i <= 10; i++);
+    {
+        sum = sum + i;
+    }
+    printf("Sum = %d", sum);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    int i;
+    int sum = 0;
+    for (i = 1; i <= 10; i++) {
+        sum = sum + i;
+    }
+    printf("Sum = %d", sum);
+    return 0;
+}`,
+                bugOutput: 'Console: Sum = 11'
+            },
+            {
+                id: 15, round: 1, lang: 'C', title: 'C Incorrect scanf for Float', diff: 'Easy',
+                desc: 'The format specifier in `scanf` does not match the data type of the variable. `%d` is for integers, but `num` is a `float`.',
+                example: 'Input: 3.14, Expected: 3.140000',
+                initialCode: `#include <stdio.h>
+int main() {
+    float num;
+    scanf("%d", &num);
+    printf("%f", num);
+    return 0;
+}`,
+                solutionCode: `#include <stdio.h>
+int main() {
+    float num;
+    scanf("%f", &num);
+    printf("%f", num);
+    return 0;
+}`,
+                bugOutput: 'Console: (Garbage Value, e.g., 0.000000)'
+            }
         ];
 
         let ALL_PROBLEMS = [...PROBLEMS];
@@ -809,6 +1063,12 @@
         let solvedProblemIds = new Set();
         let attemptedProblemIds = new Set();
         let userSubmissions = {};
+
+        function updateSidebarHeader() {
+            const solvedCount = solvedProblemIds.size;
+            const totalCount = SESSION_PROBLEMS.length;
+            document.querySelector('.sidebar-header').innerText = `PROBLEMS (${solvedCount}/${totalCount})`;
+        }
 
         function validateReg() {
             const name = document.getElementById('reg-name').value;
@@ -853,8 +1113,7 @@
             document.getElementById('workspace-lang').innerHTML = '<option value="C">C</option>';
             document.getElementById('workspace-lang').value = 'C';
             document.getElementById('workspace-lang').disabled = true;
-            document.querySelector('.sidebar-header').innerText = `C Programming (${SESSION_PROBLEMS.length})`;
-
+            updateSidebarHeader();
             initProblemsList();
             selectProblem(0);
         }
@@ -932,6 +1191,7 @@
                     document.getElementById(`dot-${p.id}`).classList.remove('solved');
                 }
                 userSubmissions[p.id] = currentCode;
+                updateSidebarHeader();
             }, 800);
         }
 
@@ -1051,7 +1311,7 @@
                     if (data.length === 0) { content.innerHTML = '<p>No results yet.</p>'; return; }
                     let html = `<table class="leaderboard-table"><thead><tr><th>Rank</th><th>Name</th><th>R</th><th>Solved</th><th>Time</th></tr></thead><tbody>`;
                     data.forEach((r, i) => {
-                        html += `<tr><td>#${i + 1}</td><td>${r.name}<br><small>${r.roll_number}</small></td><td>R${r.round || 1}</td><td>${r.solved_count}/10</td><td>${Math.floor(r.time_spent_seconds / 60)}m</td></tr>`;
+                        html += `<tr><td>#${i + 1}</td><td>${r.name}<br><small>${r.roll_number}</small></td><td>R${r.round || 1}</td><td>${r.solved_count}/15</td><td>${Math.floor(r.time_spent_seconds / 60)}m</td></tr>`;
                     });
                     content.innerHTML = html + '</tbody></table>';
                 }
