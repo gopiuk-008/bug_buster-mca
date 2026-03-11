@@ -720,6 +720,7 @@
                 desc: 'The pointer arithmetic in this function is incorrect, causing it to access memory outside the array bounds.',
                 example: 'Input: [10, 20, 30], get index 2. Expected: 30',
                 initialCode: '#include <stdio.h>\nint main() {\n    int arr[] = {10, 20, 30};\n    int *ptr = arr;\n    // Accessing index 2\n    printf("%d", *(ptr + 4)); // Bug: incorrect offset\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\nint main() {\n    int arr[] = {10, 20, 30};\n    int *ptr = arr;\n    // Accessing index 2\n    printf("%d", *(ptr + 2));\n    return 0;\n}',
                 bugOutput: 'Console: (Garbage Value or Crash)'
             },
             {
@@ -727,6 +728,7 @@
                 desc: 'This function has a memory leak and potential crash due to improper allocation size for a string.',
                 example: 'Input: "Hello", Expected: Space allocated for 5 chars + null',
                 initialCode: '#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint main() {\n    char *s = malloc(5); // Bug: not enough for null terminator\n    strcpy(s, "Hello");\n    printf("%s", s);\n    // Missing free(s);\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint main() {\n    char *s = malloc(6);\n    strcpy(s, "Hello");\n    printf("%s", s);\n    free(s);\n    return 0;\n}',
                 bugOutput: 'Console: Hello (but memory issues exist)'
             },
             {
@@ -734,6 +736,7 @@
                 desc: 'A double free error occurs in this cleanup logic. Identify and fix it.',
                 example: 'Expected: No crash',
                 initialCode: '#include <stdio.h>\n#include <stdlib.h>\nint main() {\n    int *p = malloc(sizeof(int));\n    *p = 10;\n    free(p);\n    if(p != NULL) {\n        free(p); // Bug: Double free\n    }\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\n#include <stdlib.h>\nint main() {\n    int *p = malloc(sizeof(int));\n    *p = 10;\n    free(p);\n    return 0;\n}',
                 bugOutput: 'Exception: Abort / Segmentation Fault'
             },
             {
@@ -741,6 +744,7 @@
                 desc: 'The file handling logic is unsafe and missing null checks for the file pointer.',
                 example: 'Expected: Safe file reading',
                 initialCode: '#include <stdio.h>\nint main() {\n    FILE *f = fopen("nonexistent.txt", "r");\n    char buf[100];\n    fgets(buf, 100, f); // Bug: f might be NULL\n    printf("%s", buf);\n    fclose(f);\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\nint main() {\n    FILE *f = fopen("nonexistent.txt", "r");\n    if (f != NULL) {\n        char buf[100];\n        fgets(buf, 100, f);\n        printf("%s", buf);\n        fclose(f);\n    }\n    return 0;\n}',
                 bugOutput: 'Exception: Segmentation Fault'
             },
             {
@@ -748,6 +752,7 @@
                 desc: 'The use of gets() is dangerous. Fix the buffer overflow vulnerability.',
                 example: 'Expected: Secure input handling',
                 initialCode: '#include <stdio.h>\nint main() {\n    char name[10];\n    printf("Enter name: ");\n    gets(name); // Bug: Dangerous function\n    printf("Hello %s", name);\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\nint main() {\n    char name[10];\n    printf("Enter name: ");\n    fgets(name, 10, stdin);\n    printf("Hello %s", name);\n    return 0;\n}',
                 bugOutput: 'Console: (Potential Security Risk/Crash)'
             },
             {
@@ -755,6 +760,7 @@
                 desc: 'The function returns a pointer to a local variable which becomes dangling.',
                 example: 'Expected: Valid pointer or value returned',
                 initialCode: '#include <stdio.h>\nint* getVal() {\n    int x = 100;\n    return &x; // Bug: local address returned\n}\nint main() {\n    int *p = getVal();\n    printf("%d", *p);\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\nint getVal() {\n    int x = 100;\n    return x;\n}\nint main() {\n    int p = getVal();\n    printf("%d", p);\n    return 0;\n}',
                 bugOutput: 'Console: (Garbage/Crash)'
             },
             {
@@ -762,6 +768,7 @@
                 desc: 'Calculated size of struct is incorrect because of padding assumptions. Use the right way to get size.',
                 example: 'Expected: Actual struct size',
                 initialCode: '#include <stdio.h>\nstruct Data { char c; int i; };\nint main() {\n    // Assuming char(1) + int(4) = 5\n    int expected = 5;\n    if(sizeof(struct Data) == expected) printf("Match");\n    else printf("Mismatch: %zu", sizeof(struct Data));\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\nstruct Data { char c; int i; };\nint main() {\n    // The actual size is usually 8 due to padding\n    int expected = 8;\n    if(sizeof(struct Data) == expected) printf("Match");\n    else printf("Mismatch: %zu", sizeof(struct Data));\n    return 0;\n}',
                 bugOutput: 'Console: Mismatch: 8'
             },
             {
@@ -769,6 +776,7 @@
                 desc: 'Comparing strings using == is a common mistake in C. Use the correct function.',
                 example: 'Input: "test", "test", Expected: Match',
                 initialCode: '#include <stdio.h>\nint main() {\n    char s1[] = "test";\n    char s2[] = "test";\n    if(s1 == s2) printf("Match"); // Bug: comparing addresses\n    else printf("Mismatch");\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\n#include <string.h>\nint main() {\n    char s1[] = "test";\n    char s2[] = "test";\n    if(strcmp(s1, s2) == 0) printf("Match");\n    else printf("Mismatch");\n    return 0;\n}',
                 bugOutput: 'Console: Mismatch'
             },
             {
@@ -776,6 +784,7 @@
                 desc: 'Passing an array to a function and trying to find its size inside doesn\'t work. Fix it.',
                 example: 'Expected size: 5',
                 initialCode: '#include <stdio.h>\nvoid printSize(int arr[]) {\n    printf("%zu", sizeof(arr) / sizeof(arr[0])); // Bug\n}\nint main() {\n    int a[] = {1, 2, 3, 4, 5};\n    printSize(a);\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\nvoid printSize(int arr[], size_t size) {\n    printf("%zu", size);\n}\nint main() {\n    int a[] = {1, 2, 3, 4, 5};\n    printSize(a, sizeof(a) / sizeof(a[0]));\n    return 0;\n}',
                 bugOutput: 'Console: 2 (on 64-bit)'
             },
             {
@@ -783,6 +792,7 @@
                 desc: 'The linked list traversal goes into an infinite loop due to a broken pointer assignment.',
                 example: 'Expected: Print 1 to 3',
                 initialCode: '#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int v; struct Node *next; };\nint main() {\n    struct Node *h = malloc(sizeof(struct Node));\n    h->v = 1; h->next = h; // Bug: Cycle created\n    printf("%d", h->v);\n    return 0;\n}',
+                solutionCode: '#include <stdio.h>\n#include <stdlib.h>\nstruct Node { int v; struct Node *next; };\nint main() {\n    struct Node *h = malloc(sizeof(struct Node));\n    h->v = 1; h->next = NULL;\n    printf("%d", h->v);\n    return 0;\n}',
                 bugOutput: 'Console: (Timed Out)'
             },
 
@@ -900,15 +910,26 @@
             const currentCode = document.getElementById('code-editor').value;
             const out = document.getElementById('console-output');
             out.innerHTML = '<span style="color: grey;">Compiling and running...</span>\n\n';
+
+            // Normalize code by removing comments and all whitespace for robust comparison
+            const normalize = (str) => str.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '').replace(/\s+/g, '');
+
+            const isSolved = normalize(currentCode) === normalize(p.solutionCode);
+            const isUnchanged = normalize(currentCode) === normalize(p.initialCode);
+
             setTimeout(() => {
-                if (currentCode.trim() === p.initialCode.trim()) {
-                    out.innerHTML += `<span class="error-text">Bug still present! Check logic again.</span>`;
+                if (isSolved) {
+                    out.innerHTML += `<span class="success-text">Output Match! Bug resolved.</span>`;
+                    document.getElementById(`dot-${p.id}`).classList.add('solved');
+                    solvedProblemIds.add(p.id);
+                } else if (isUnchanged) {
+                    out.innerHTML += `<span class="error-text">${p.bugOutput}</span>`;
                     solvedProblemIds.delete(p.id);
                     document.getElementById(`dot-${p.id}`).classList.remove('solved');
                 } else {
-                    out.innerHTML += `<span class="success-text">Output Match! Bug potentially resolved.</span>`;
-                    document.getElementById(`dot-${p.id}`).classList.add('solved');
-                    solvedProblemIds.add(p.id);
+                    out.innerHTML += `<span class="error-text">Bug still present! Check logic again.</span>`;
+                    solvedProblemIds.delete(p.id);
+                    document.getElementById(`dot-${p.id}`).classList.remove('solved');
                 }
                 userSubmissions[p.id] = currentCode;
             }, 800);
